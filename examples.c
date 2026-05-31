@@ -16,10 +16,21 @@
         stat;                 \
     } while (0)
 
+fmt_error_t fmt_write_io_impl(const char* buff, size_t write_len)
+{
+    // optional: write buff to IO
+    fwrite(buff, 1, write_len, stdout);
+
+    return FmtError_Ok;
+}
+
 int main(void)
 {
     char buff[BUFF_SZ];
     size_t len;
+
+    demo_section("io_write");
+    fmt_write("fmt(\"{{}}\", \"{}\")   -> \"{0}\"\n", "Hello");
 
     demo_section("simple");
 

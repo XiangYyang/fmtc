@@ -9,6 +9,28 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifndef FMT_MAX_IOBUFF_LEN
+/**
+ * @brief configure: max io buffer length (64bytes default)
+ */
+#define FMT_MAX_IOBUFF_LEN 64
+#endif // FMT_MAX_IOBUFF_LEN
+
+#ifndef FMT_USE_SHIFT_MULMOD
+/**
+ * @brief configure: use shift operator insteads multiply operator
+ */
+#define FMT_USE_SHIFT_MULMOD 1
+#endif // FMT_USE_SHIFT_MULMOD
+
+#ifndef FMT_DEFAULT_IOWRITE_IMPL
+/**
+ * @brief configure: use an empty __weak IOwrite impl
+ */
+#define FMT_DEFAULT_IOWRITE_IMPL 1
+#endif // FMT_DEFAULT_IOWRITE_IMPL
+
 /**
  * @brief Max argument number
  */
@@ -206,10 +228,22 @@
     (fn, r0, r1, r2, FMT_HELPER_VA_ARGS_N(__VA_ARGS__) __VA_OPT__(, ) __VA_ARGS__)
 
 /**
+ * @brief deduce two arguments in fmt_tobuff_impl
+ */
+#define FMT_HELPER_IMPL_IOWRAPPER(fmt, buff, max_sz, n_args, ...) \
+    fmt_io_impl(fmt, n_args __VA_OPT__(, ) __VA_ARGS__)
+
+/**
  * @brief formatting to string, with typeinfo, see also @ref fmt_tobuff_impl
  */
 #define fmt_tobuff(fmt_str, buff, max_len, ...) \
     FMT_HELPER_TYPEARG_N(fmt_tobuff_impl, fmt_str, buff, max_len __VA_OPT__(, ) __VA_ARGS__)
+
+/**
+ * @brief formatting to string and write to io, with typeinfo, see also @ref fmt_io_impl
+ */
+#define fmt_write(fmt_str, ...) \
+    FMT_HELPER_TYPEARG_N(FMT_HELPER_IMPL_IOWRAPPER, fmt_str, 0, 0 __VA_OPT__(, ) __VA_ARGS__)
 
 /**
  * @brief typeid
@@ -302,6 +336,12 @@ typedef enum FmtError {
      *
      */
     FmtError_UInt8PointerValueInvaildSpecChar,
+
+    /**
+     * @brief IO error (returned by fmt_io_impl ONLY)
+     *
+     */
+    FmtError_IOError,
 } fmt_error_t;
 
 #if __cplusplus
@@ -330,6 +370,22 @@ extern fmt_error_t
  */
 extern fmt_error_t
     fmt_tobuff_varg(const char* fmt, char* buff, size_t* max_sz, size_t n_args, va_list v_args);
+
+/**
+ * @brief formatting to string and write it into IObuff by @ref fmt_write_io_impl
+ *
+ * @attention requires implementation of @ref fmt_write_io_impl
+ *
+ * @param[in] fmt: formatting string
+ * @param[in] n_args: varargs length
+ */
+extern fmt_error_t fmt_io_impl(const char* fmt, size_t n_args, ...);
+
+/**
+ * @brief external implement: write string to IO
+ *
+ */
+extern fmt_error_t fmt_write_io_impl(const char* buff, size_t write_len);
 
 #if __cplusplus
 }

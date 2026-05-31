@@ -176,6 +176,7 @@ typedef struct ReplacementField {
  */
 static void div_mod_10(uint32_t x, uint32_t* div, uint32_t* rem)
 {
+#if FMT_USE_SHIFT_MULMOD
     uint32_t q, r;
 
     // calcuate q = x * 0.8
@@ -194,6 +195,10 @@ static void div_mod_10(uint32_t x, uint32_t* div, uint32_t* rem)
         *div = q;
         *rem = r;
     }
+#else
+    *div = x / 10;
+    *rem = x % 10;
+#endif
 }
 
 /**
@@ -894,3 +899,35 @@ fmt_error_t fmt_tobuff_varg(
 
     return fmt_tobuff_varg_impl(fmt, buff, max_sz, n_args, v_args);
 }
+
+//
+// public (io version)
+//
+fmt_error_t fmt_io_impl(const char* fmt, size_t n_args, ...)
+{
+    va_list args;
+    va_start(args, n_args);
+
+    char buff[FMT_MAX_IOBUFF_LEN];
+    size_t write_len = FMT_MAX_IOBUFF_LEN;
+
+    fmt_error_t ret = fmt_tobuff_varg_impl(fmt, buff, &write_len, n_args, args);
+
+    if (ret == FmtError_Ok) {
+        ret = fmt_write_io_impl(buff, write_len);
+    }
+
+    va_end(args);
+    return ret;
+}
+
+// default IOwrite
+#if FMT_DEFAULT_IOWRITE_IMPL
+__attribute__((weak)) fmt_error_t fmt_write_io_impl(const char* buff, size_t write_len)
+{
+    (void)buff;
+    (void)write_len;
+
+    return FmtError_IOError;
+}
+#endif // FMT_DEFAULT_IOWRITE_IMPL
