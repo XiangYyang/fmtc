@@ -69,6 +69,20 @@ digit :=
 ## Run examples
 
 ```bash
-clang -std=c11 fmt.c examples.c -o examples
-./examples
+$ clang -std=c11 fmt.c examples.c -O2 -o examples && ./examples
+
+fmt("{}", 42)        -> 42
+
+fmt("{:d}", 42)      -> 42
+fmt("{:h}", 42)      -> 2a
+fmt("{:x}", 42)      -> 0x2a
+
+fmt("{:>8d}", 42)    -> |      42|
+fmt("{:<8d}", 42)    -> |42      |
+fmt("{:^8d}", 42)    -> |   42   |
+
+fmt("{}", "QwQ")     -> QwQ
+fmt("{:p}", "QwQ")   -> 0x42dd437
+
+fmt("0:{} 1:{} 1:{1} 0:{0}", 42, "QwQ")   -> 0:42 1:QwQ 1:QwQ 0:42
 ```
