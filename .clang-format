@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache License
+AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveMacros:
+  AcrossComments: true
+  AcrossEmptyLines: true
+  Enabled: true
+AlignEscapedNewlines: Left
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Empty
+AttributeMacros:
+  - __attribute__
+BasedOnStyle: WebKit
+BinPackArguments: false
+BinPackParameters: OnePerLine
+BreakAfterAttributes: Always
+BreakTemplateDeclarations: "Yes"
+ColumnLimit: 96
+IncludeCategories:
+  - Priority: 2
+    Regex: ^"stm32.*
+  - Priority: 4
+    Regex: ^"cmsis.*
+  - Priority: 1
+    Regex: ^<.*
+  - Priority: 3
+    Regex: ^".*
+IndentWidth: 4
+IndentWrappedFunctionNames: true
+MaxEmptyLinesToKeep: 1
